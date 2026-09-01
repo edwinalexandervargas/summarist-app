@@ -1,4 +1,5 @@
 import Features from "./components/Features";
+import Footer from "./components/Footer";
 import Landing from "./components/Landing";
 import Navbar from "./components/Navbar";
 import Numbers from "./components/Numbers";
@@ -13,6 +14,7 @@ export default function Home() {
     <Features/>
     <Reviews/>
     <Numbers/>
+    <Footer/>
     </>
   )
 }
