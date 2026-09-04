@@ -1,4 +1,10 @@
+"use client";
+
+import { useDispatch } from "react-redux";
+import { openModal } from "@/store/slices/modalSlice";
+
 export default function Landing() {
+  const dispatch = useDispatch();
   return (
     <section id="landing">
       <div className="container">
@@ -16,7 +22,7 @@ export default function Landing() {
                 <br className="remove--tablet" />
                 and even people who don't like to read.
               </div>
-              <button className="btn home__cta--btn">Login</button>
+              <button className="btn home__cta--btn" onClick={() => dispatch(openModal())}>Login</button>
             </div>
             <figure className="landing__image--mask">
               <img src="/assets/landing.png" alt="" />

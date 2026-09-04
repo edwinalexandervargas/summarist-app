@@ -1,6 +1,11 @@
+"use client";
+
+import { useDispatch } from "react-redux";
+import { openModal } from "@/store/slices/modalSlice";
 import { BsStarFill } from "react-icons/bs";
 
 export default function Reviews() {
+    const dispatch = useDispatch();
   return (
     <section id="reviews">
       <div className="row">
@@ -79,7 +84,7 @@ export default function Reviews() {
             </div>
           </div>
           <div className="reviews__btn--wrapper">
-            <button className="btn home__cta--btn">Login</button>
+            <button className="btn home__cta--btn" onClick={() => dispatch((openModal()))}>Login</button>
           </div>
         </div>
       </div>
