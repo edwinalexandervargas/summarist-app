@@ -1,6 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { signOut } from "firebase/auth";
+import { auth } from "../../lib/firebase";
+import { openModal } from "../../store/slices/modalSlice";
+import { useSelector, useDispatch } from "react-redux";
 import { usePathname } from "next/navigation";
 import {
   FaHome,
@@ -14,6 +18,8 @@ import {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
 
   return (
     <aside className="sidebar">
@@ -55,11 +61,17 @@ export default function Sidebar() {
         <li className="sidebar__item sidebar__item--disabled">
           <FaQuestionCircle /> Help &amp; Support
         </li>
-        <li className="sidebar__item">
-          <button className="">
-            <FaSignOutAlt /> Login
-          </button>
-        </li>
+       <li className="sidebar__item">
+  {user ? (
+    <button onClick={() => signOut(auth)}>
+      <FaSignOutAlt /> Logout
+    </button>
+  ) : (
+    <button onClick={() => dispatch(openModal())}>
+      <FaSignOutAlt /> Login
+    </button>
+  )}
+</li>
       </ul>
     </aside>
   );
