@@ -5,9 +5,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { closeModal } from "@/store/slices/modalSlice";
 import { FaUser } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 export default function AuthModal() {
   const isOpen = useSelector((state) => state.modal.isOpen);
@@ -16,6 +22,7 @@ export default function AuthModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     if (isOpen) {
@@ -40,6 +47,7 @@ export default function AuthModal() {
       setEmail("");
       setPassword("");
       dispatch(closeModal());
+      router.push("/for-you");
     } catch (err) {
       if (err.code === "auth/weak-password") {
         setError("Password should be at least 6 characters.");
@@ -53,6 +61,20 @@ export default function AuthModal() {
     }
   }
 
+  async function handleGoogleLogin() {
+    try {
+      setError("");
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      console.log("Google login:", result.user);
+      dispatch(closeModal());
+      router.push("/for-you");
+    } catch (err) {
+      console.log("Google login error:", err.message);
+      setError("Something went wrong with Google login. Please try again.");
+    }
+  }
+
   async function handleLogin() {
     try {
       setError("");
@@ -61,10 +83,44 @@ export default function AuthModal() {
       setEmail("");
       setPassword("");
       dispatch(closeModal());
+      router.push("/for-you");
     } catch (err) {
-      console.log("Login error code:", err.code);
       if (err.code === "auth/invalid-credential") {
         setError("Incorrect email or password.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    }
+  }
+
+  async function handleGuestLogin() {
+    try {
+      setError("");
+      const userLogin = await signInWithEmailAndPassword(
+        auth,
+        "guest@gmail.com",
+        "guest123",
+      );
+      console.log("Logged in", userLogin.user);
+      setEmail("");
+      setPassword("");
+      dispatch(closeModal());
+      router.push("/for-you");
+    } catch (err) {
+      setError("Guest login is temporarily unavailable. Please try again.");
+    }
+  }
+
+  async function handlePasswordReset() {
+    try {
+      setError("");
+      await sendPasswordResetEmail(auth, email);
+      setError("Password reset link sent! Check your email.");
+    } catch (err) {
+      if (err.code === "auth/invalid-email") {
+        setError("Please enter a valid email address.");
+      } else if (err.code === "auth/user-not-found") {
+        setError("No account found with that email.");
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -75,14 +131,20 @@ export default function AuthModal() {
     return (
       <>
         <h2 className="auth__title">Log in to Summarist</h2>
-        <button className="btn modal__guest-btn">
+        <button
+          className="btn modal__guest-btn"
+          onClick={() => handleGuestLogin()}
+        >
           Login as a Guest
           <FaUser className="modal__guest-icon" />
         </button>
         <div className="auth__separator">
           <span className="auth__separator--text">or</span>
         </div>
-        <button className="btn modal__google-btn">
+        <button
+          className="btn modal__google-btn"
+          onClick={() => handleGoogleLogin()}
+        >
           Login with Google
           <FcGoogle className="modal__google-icon" />
         </button>
@@ -121,7 +183,10 @@ export default function AuthModal() {
     return (
       <>
         <h2 className="auth__title">Sign up to Summarist</h2>
-        <button className="btn modal__google-btn">
+        <button
+          className="btn modal__google-btn"
+          onClick={() => handleGoogleLogin()}
+        >
           Login with Google
           <FcGoogle className="modal__google-icon" />
         </button>
@@ -161,7 +226,9 @@ export default function AuthModal() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <button className="btn">Send reset password link</button>
+        <button className="btn" onClick={() => handlePasswordReset()}>
+          Send reset password link
+        </button>
       </>
     );
   }

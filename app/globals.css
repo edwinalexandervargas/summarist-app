@@ -677,7 +677,6 @@ button:disabled {
   padding: 0 24px;
   background-color: #fff;
   border-bottom: 1px solid #e1e7ea;
-  z-index: 100;
 }
 
 .searchbar__wrapper {

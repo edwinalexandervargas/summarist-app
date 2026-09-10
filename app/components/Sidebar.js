@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { openModal } from "../../store/slices/modalSlice";
@@ -20,6 +21,12 @@ export default function Sidebar() {
   const pathname = usePathname();
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+  const router = useRouter();
+
+  async function handleLogout() {
+  await signOut(auth);
+  router.push("/");
+}
 
   return (
     <aside className="sidebar">
@@ -63,7 +70,7 @@ export default function Sidebar() {
         </li>
        <li className="sidebar__item">
   {user ? (
-    <button onClick={() => signOut(auth)}>
+    <button onClick={() => handleLogout()}>
       <FaSignOutAlt /> Logout
     </button>
   ) : (
