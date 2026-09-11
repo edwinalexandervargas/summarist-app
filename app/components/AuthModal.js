@@ -23,14 +23,14 @@ export default function AuthModal() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      setView("login");
-      setEmail("");
-      setPassword("");
-      setError("");
-    }
+    setView("login");
+    setEmail("");
+    setPassword("");
+    setError("");
+    setEmailSent(false);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -115,14 +115,13 @@ export default function AuthModal() {
     try {
       setError("");
       await sendPasswordResetEmail(auth, email);
-      setError("Password reset link sent! Check your email.");
+      setEmailSent(true);
     } catch (err) {
+      console.log("Password reset error code:", err.code);
       if (err.code === "auth/invalid-email") {
         setError("Please enter a valid email address.");
-      } else if (err.code === "auth/user-not-found") {
-        setError("No account found with that email.");
       } else {
-        setError("Something went wrong. Please try again.");
+        setEmailSent(true);
       }
     }
   }
@@ -219,16 +218,26 @@ export default function AuthModal() {
     return (
       <>
         <h2 className="auth__title">Reset your password</h2>
-        <input
-          className="auth__main--input"
-          type="email"
-          placeholder="Email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button className="btn" onClick={() => handlePasswordReset()}>
-          Send reset password link
-        </button>
+        {emailSent ? (
+          <p>
+            If an account with that email exists, we've sent a password reset
+            link.
+          </p>
+        ) : (
+          <>
+            <input
+              className="auth__main--input"
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            {error && <p className="auth__error">{error}</p>}
+            <button className="btn" onClick={() => handlePasswordReset()}>
+              Send reset password link
+            </button>
+          </>
+        )}
       </>
     );
   }
@@ -238,7 +247,11 @@ export default function AuthModal() {
       return (
         <button
           className="auth__switch--btn"
-          onClick={() => setView("register")}
+          onClick={() => {
+            setView("register");
+            setEmail("");
+            setPassword("");
+          }}
         >
           Don't have an account?
         </button>
@@ -246,14 +259,29 @@ export default function AuthModal() {
     }
     if (view === "register") {
       return (
-        <button className="auth__switch--btn" onClick={() => setView("login")}>
+        <button
+          className="auth__switch--btn"
+          onClick={() => {
+            setView("login");
+            setEmail("");
+            setPassword("");
+          }}
+        >
           Already have an account?
         </button>
       );
     }
     if (view === "password-reset") {
       return (
-        <button className="auth__switch--btn" onClick={() => setView("login")}>
+        <button
+          className="auth__switch--btn"
+          onClick={() => {
+            setView("login");
+            setEmailSent(false);
+            setEmail("");
+            setPassword("");
+          }}
+        >
           Go to login
         </button>
       );
