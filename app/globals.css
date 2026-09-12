@@ -833,6 +833,108 @@ button:disabled {
   animation: skeleton-loading 1.5s infinite;
 }
 
+/* SETTINGS */
+
+.settings__wrapper {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings__block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings__label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.settings__upgrade-btn {
+  width: 100%;
+  max-width: 250px;
+}
+
+/* subscription */
+
+.subscription__header {
+  text-align: center;
+  font-size: 32px;
+  color: #032b41;
+  margin: 40px 0;
+}
+
+.subscription__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+}
+
+.subscription__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 320px;
+  padding: 32px 24px;
+  border: 1px solid #e1e7ea;
+  border-radius: 8px;
+}
+
+.subscription__price {
+  font-size: 24px;
+  font-weight: 700;
+  color: #032b41;
+}
+
+.subscription__desc {
+  color: #394547;
+}
+
+.subscription__desc {
+  color: #394547;
+  line-height: 1.5;
+}
+
+.settings__label {
+  font-size: 14px;
+  color: #6b757b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settings__value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #032b41;
+}
+
+.settings__title,
+.settings__block {
+  border-bottom: 1px solid #e1e7ea;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+
+.settings__login-message {
+  font-size: 20px;
+  font-weight: 700;
+  color: #032b41;
+  text-align: center;
+  max-width: 400px;
+}
+
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
