@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, use } from "react";
+import { useSelector } from "react-redux";
 import axios from "axios";
+import { doc, setDoc } from "firebase/firestore";
 import { FaPlay, FaPause, FaUndo, FaRedo } from "react-icons/fa";
+import { db } from "../../../../lib/firebase";
 
 export default function PlayerPage({ params }) {
   const { id } = use(params);
@@ -13,6 +16,7 @@ export default function PlayerPage({ params }) {
   const [duration, setDuration] = useState(0);
 
   const audioRef = useRef(null);
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     async function fetchBook() {
@@ -64,6 +68,30 @@ export default function PlayerPage({ params }) {
     const newTime = Number(e.target.value);
     audio.currentTime = newTime;
     setCurrentTime(newTime);
+  }
+
+  async function handleFinished() {
+    setIsPlaying(false);
+    if (!user) return;
+    const libraryRef = doc(db, "users", user.uid, "library", id);
+    try {
+      await setDoc(
+        libraryRef,
+        {
+          id,
+          title: book.title,
+          author: book.author,
+          subTitle: book.subTitle,
+          imageLink: book.imageLink,
+          averageRating: book.averageRating,
+          duration,
+          finished: true,
+        },
+        { merge: true },
+      );
+    } catch (err) {
+      console.log("Error marking book finished:", err.message);
+    }
   }
 
   function formatTime(seconds) {
@@ -132,7 +160,7 @@ export default function PlayerPage({ params }) {
           src={book.audioLink}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
-          onEnded={() => setIsPlaying(false)}
+          onEnded={handleFinished}
         />
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import {
   FaRegBookmark,
   FaBookmark,
@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import { openModal } from "../../../../store/slices/modalSlice";
 import { db } from "../../../../lib/firebase";
+import { formatDuration } from "../../../../lib/formatTime";
 
 export default function BookPage({ params }) {
   const { id } = use(params);
@@ -53,7 +54,7 @@ export default function BookPage({ params }) {
       }
       const libraryRef = doc(db, "users", user.uid, "library", id);
       const snap = await getDoc(libraryRef);
-      setInLibrary(snap.exists());
+      setInLibrary(snap.exists() && snap.data().saved === true);
     }
     checkLibrary();
   }, [user, id]);
@@ -72,13 +73,6 @@ export default function BookPage({ params }) {
     };
   }, [book]);
 
-  function formatDuration(seconds) {
-    if (!seconds || isNaN(seconds)) return "—";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-  }
-
   function handlePlayerRedirect() {
     if (!user) {
       dispatch(openModal());
@@ -92,19 +86,28 @@ export default function BookPage({ params }) {
       dispatch(openModal());
       return;
     }
+    if (libraryLoading) return; // ignore rapid re-clicks without visually disabling the button
     setLibraryLoading(true);
     const libraryRef = doc(db, "users", user.uid, "library", id);
     try {
       if (inLibrary) {
-        await deleteDoc(libraryRef);
+        await setDoc(libraryRef, { saved: false }, { merge: true });
         setInLibrary(false);
       } else {
-        await setDoc(libraryRef, {
-          id,
-          title: book.title,
-          author: book.author,
-          imageLink: book.imageLink,
-        });
+        await setDoc(
+          libraryRef,
+          {
+            id,
+            title: book.title,
+            author: book.author,
+            subTitle: book.subTitle,
+            imageLink: book.imageLink,
+            averageRating: book.averageRating,
+            duration,
+            saved: true,
+          },
+          { merge: true },
+        );
         setInLibrary(true);
       }
     } catch (err) {
@@ -164,7 +167,6 @@ export default function BookPage({ params }) {
       <button
         className="book-detail__library-btn"
         onClick={handleLibraryToggle}
-        disabled={libraryLoading}
       >
         {inLibrary ? <FaBookmark /> : <FaRegBookmark />}
         {inLibrary ? " Remove from My Library" : " Add title to My Library"}
