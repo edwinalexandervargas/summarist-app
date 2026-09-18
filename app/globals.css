@@ -1637,6 +1637,11 @@ button:disabled {
   color: #6b7c80;
   text-align: center;
 }
+.searchbar__result-skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
