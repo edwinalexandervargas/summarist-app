@@ -7,6 +7,13 @@ import { doc, setDoc } from "firebase/firestore";
 import { FaPlay, FaPause, FaUndo, FaRedo } from "react-icons/fa";
 import { db } from "../../../../lib/firebase";
 
+const FONT_SIZE_MAP = {
+  small: "14px",
+  medium: "16px",
+  large: "18px",
+  xlarge: "20px",
+};
+
 export default function PlayerPage({ params }) {
   const { id } = use(params);
   const [book, setBook] = useState(null);
@@ -17,6 +24,7 @@ export default function PlayerPage({ params }) {
 
   const audioRef = useRef(null);
   const user = useSelector((state) => state.auth.user);
+  const fontSize = useSelector((state) => state.reader.fontSize);
 
   useEffect(() => {
     async function fetchBook() {
@@ -108,7 +116,10 @@ export default function PlayerPage({ params }) {
     <div className="player__wrapper">
       <div className="player__content">
         <h1 className="player__title">{book.title}</h1>
-        <p className="player__summary">
+        <p
+          className="player__summary"
+          style={{ fontSize: FONT_SIZE_MAP[fontSize] }}
+        >
           {book.summary.split("\n\n").map((paragraph, i) => (
             <span key={i} className="player__paragraph">
               {paragraph.trim()}

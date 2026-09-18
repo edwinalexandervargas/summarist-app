@@ -3,13 +3,20 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { FaRegClock } from "react-icons/fa";
 import Skeleton from "../../components/Skeleton";
+import BookStats from "../../components/BookStats";
+import { useAudioDuration } from "../../../lib/useAudioDuration";
+import { formatDuration } from "../../../lib/formatTime";
+
 
 export default function ForYouPage() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [recommendedBooks, setRecommendedBooks] = useState([]);
   const [suggestedBooks, setSuggestedBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const selectedDuration = useAudioDuration(selectedBook?.audioLink);
 
   useEffect(() => {
     async function fetchBooks() {
@@ -106,7 +113,12 @@ export default function ForYouPage() {
                 <div className="selected_book--author">
                   {selectedBook.author}
                 </div>
-                <button className="selected_book--play-btn">▶</button>
+                <div className="selected_book--controls">
+                  <button className="selected_book--play-btn">▶</button>
+                  <span className="selected_book--duration">
+                    <FaRegClock /> {formatDuration(selectedDuration)}
+                  </span>
+                </div>
               </div>
             </div>
           </Link>
@@ -130,6 +142,7 @@ export default function ForYouPage() {
             <div className="recommended__book--title">{book.title}</div>
             <div className="recommended__book--author">{book.author}</div>
             <div className="recommended__book--sub-title">{book.subTitle}</div>
+            <BookStats book={book} />
           </Link>
         ))}
       </div>
@@ -149,6 +162,7 @@ export default function ForYouPage() {
             <div className="recommended__book--title">{book.title}</div>
             <div className="recommended__book--author">{book.author}</div>
             <div className="recommended__book--sub-title">{book.subTitle}</div>
+            <BookStats book={book} />
           </Link>
         ))}
       </div>
